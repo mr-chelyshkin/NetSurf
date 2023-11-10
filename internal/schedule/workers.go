@@ -69,6 +69,7 @@ func NetworkScan(ctx context.Context, c chan<- []map[string]string) {
 	output, _ := ctx.Value(NetSurf.CtxKeyLoggerChannel).(chan string)
 
 	f := func(ctx context.Context) {
+		networks := []map[string]string{}
 		done := make(chan struct{})
 		go func() {
 			for _, network := range wifi.Scan(ctx, output) {
@@ -89,5 +90,5 @@ func NetworkScan(ctx context.Context, c chan<- []map[string]string) {
 			return
 		}
 	}
-	go schedule(ctx, 6, f)
+	go schedule(ctx, 10, f)
 }
