@@ -9,13 +9,13 @@ import (
 )
 
 func NetworkStatus(ctx context.Context, c chan<- string) {
-	f := func(ctx context.Context) {
-		wifi, ok := ctx.Value(NetSurf.CtxKeyWifiController).(controller.Controller)
-		if !ok {
-			c <- "missed controller"
-			return
-		}
+	wifi, ok := ctx.Value(NetSurf.CtxKeyWifiController).(controller.Controller)
+	if !ok {
+		c <- "missed controller"
+		return
+	}
 
+	f := func(ctx context.Context) {
 		done := make(chan struct{})
 		go func() {
 			c <- wifi.Status(ctx, nil)
@@ -28,16 +28,16 @@ func NetworkStatus(ctx context.Context, c chan<- string) {
 			return
 		}
 	}
-	schedule(ctx, NetSurf.TickCommonOperation, f)
+	go schedule(ctx, NetSurf.TickCommonOperation, f)
 }
 
 func UserInfo(ctx context.Context, c chan<- [2]string) {
-	f := func(ctx context.Context) {
-		var (
-			uid = "error"
-			usr = "error"
-		)
+	var (
+		uid = "error"
+		usr = "error"
+	)
 
+	f := func(ctx context.Context) {
 		done := make(chan struct{})
 		go func() {
 			u, err := user.Current()
@@ -56,22 +56,21 @@ func UserInfo(ctx context.Context, c chan<- [2]string) {
 			return
 		}
 	}
-	schedule(ctx, NetSurf.TickCommonOperation, f)
+	go schedule(ctx, NetSurf.TickCommonOperation, f)
 }
 
 func NetworkScan(ctx context.Context, c chan<- []map[string]string) {
+	var (
+		networks = []map[string]string{}
+	)
+	wifi, ok := ctx.Value(NetSurf.CtxKeyWifiController).(controller.Controller)
+	if !ok {
+		c <- networks
+		return
+	}
+	output, _ := ctx.Value(NetSurf.CtxKeyLoggerChannel).(chan string)
+
 	f := func(ctx context.Context) {
-		var (
-			networks = []map[string]string{}
-		)
-
-		wifi, ok := ctx.Value(NetSurf.CtxKeyWifiController).(controller.Controller)
-		if !ok {
-			c <- networks
-			return
-		}
-		output, _ := ctx.Value(NetSurf.CtxKeyLoggerChannel).(chan string)
-
 		done := make(chan struct{})
 		go func() {
 			for _, network := range wifi.Scan(ctx, output) {
@@ -92,5 +91,5 @@ func NetworkScan(ctx context.Context, c chan<- []map[string]string) {
 			return
 		}
 	}
-	schedule(ctx, NetSurf.TickCommonOperation, f)
+	go schedule(ctx, NetSurf.TickCommonOperation, f)
 }
