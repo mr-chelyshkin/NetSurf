@@ -8,6 +8,7 @@ import (
 	"github.com/mr-chelyshkin/NetSurf/internal/controller"
 )
 
+// NetworkScan and write scan results to channel in foreground by period.
 func NetworkScan(ctx context.Context, c chan<- []map[string]string) {
 	output, ok := ctx.Value(NetSurf.CtxKeyLoggerChannel).(chan string)
 	if !ok {
@@ -21,7 +22,10 @@ func NetworkScan(ctx context.Context, c chan<- []map[string]string) {
 
 	f := func(ctx context.Context) {
 		done := make(chan struct{})
+
 		go func() {
+			defer close(done)
+
 			networks := []map[string]string{}
 			for _, network := range wifi.Scan(ctx, output) {
 				networks = append(networks, map[string]string{
@@ -32,7 +36,6 @@ func NetworkScan(ctx context.Context, c chan<- []map[string]string) {
 				})
 			}
 			c <- networks
-			close(done)
 		}()
 		select {
 		case <-ctx.Done():
@@ -53,9 +56,11 @@ func NetworkStatus(ctx context.Context, c chan<- string) {
 
 	f := func(ctx context.Context) {
 		done := make(chan struct{})
+
 		go func() {
+			defer close(done)
+
 			c <- wifi.Status(ctx, nil)
-			close(done)
 		}()
 		select {
 		case <-ctx.Done():
@@ -75,18 +80,19 @@ func UserInfo(ctx context.Context, c chan<- [2]string) {
 
 	f := func(ctx context.Context) {
 		done := make(chan struct{})
+
 		go func() {
+			defer close(done)
+
 			u, err := user.Current()
 			if err == nil {
 				usr = u.Username
 				uid = u.Uid
 			}
-			close(done)
 		}()
 		select {
 		case <-ctx.Done():
 			c <- [2]string{usr, uid}
-			return
 		case <-done:
 			c <- [2]string{usr, uid}
 			return

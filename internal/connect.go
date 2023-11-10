@@ -21,7 +21,9 @@ func connect(ctx context.Context, interrupt chan struct{}) {
 
 	ctx, cancel := context.WithCancel(ctx)
 	output <- fmt.Sprintf("scan wireless network every %ds", NetSurf.TickScanOperation)
-	go func() {
+
+	schedule.NetworkScan(ctx, networks)
+	func() {
 		defer func() {
 			close(networks)
 			close(output)
@@ -52,5 +54,4 @@ func connect(ctx context.Context, interrupt chan struct{}) {
 			}
 		}
 	}()
-	schedule.NetworkScan(ctx, networks)
 }

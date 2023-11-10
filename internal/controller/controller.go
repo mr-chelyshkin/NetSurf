@@ -32,15 +32,12 @@ func (c Controller) Scan(ctx context.Context, output chan string) []wifi.Network
 
 		resultCh <- func() []wifi.Network {
 			networks := []wifi.Network{}
-			defer func() { networks = nil }()
-
 			for _, network := range wifi.Scan(output) {
 				if c.scanSkipEmptySsid && len(network.GetSSID()) == 0 {
 					continue
 				}
 				networks = append(networks, *network)
 			}
-
 			switch {
 			case c.scanSortBySignalLvl:
 				sort.Sort(wifi.ByLevelDesc(networks))
@@ -86,6 +83,7 @@ func (c Controller) Status(ctx context.Context, output chan string) string {
 	resultCh := make(chan string, 1)
 	go func() {
 		defer close(resultCh)
+
 		resultCh <- wifi.State(output)
 	}()
 	select {

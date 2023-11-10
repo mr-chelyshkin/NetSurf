@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+// global mutex map.
 var (
 	mutexMap = make(map[uintptr]*sync.Mutex)
 	mapMutex sync.Mutex

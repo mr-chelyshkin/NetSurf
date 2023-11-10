@@ -101,7 +101,7 @@ func info(ctx context.Context) *tview.Flex {
 		for {
 			select {
 			case info := <-usrInfoCh:
-				App.QueueUpdateDraw(func() {
+				App.QueueUpdate(func() {
 					switch info[0] {
 					case "error":
 						frame.SetCell(1, 1, tview.NewTableCell("error").SetTextColor(tcell.ColorRed))
@@ -123,6 +123,7 @@ func info(ctx context.Context) *tview.Flex {
 			}
 		}
 	}()
+
 	networkStatusCh := make(chan string, 1)
 	go func() {
 		schedule.NetworkStatus(ctx, networkStatusCh)
