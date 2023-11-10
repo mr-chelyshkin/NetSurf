@@ -16,17 +16,21 @@ func schedule(ctx context.Context, tick int, f func(context.Context)) {
 	if tick < 2 {
 		tick = 2
 	}
-	worker(nil, time.Duration(tick-1)*time.Second, f)
-
 	ticker := time.NewTicker(time.Duration(tick) * time.Second)
 	defer ticker.Stop()
+
+	lockAndExec := func(f func(context.Context)) {
+		m := mutex(f)
+		m.Lock()
+
+		go worker(m, time.Duration(tick-1)*time.Second, f)
+	}
+
+	lockAndExec(f)
 	for {
 		select {
 		case <-ticker.C:
-			m := mutex(f)
-			m.Lock()
-
-			go worker(m, time.Duration(tick-1)*time.Second, f)
+			lockAndExec(f)
 		case <-ctx.Done():
 			return
 		}
@@ -34,11 +38,7 @@ func schedule(ctx context.Context, tick int, f func(context.Context)) {
 }
 
 func worker(m *sync.Mutex, timeout time.Duration, f func(context.Context)) {
-	defer func() {
-		if m != nil {
-			m.Unlock()
-		}
-	}()
+	defer m.Unlock()
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()

@@ -2,9 +2,10 @@ package internal
 
 import (
 	"context"
+	"fmt"
+	"github.com/gdamore/tcell/v2"
 	"os"
 
-	"github.com/gdamore/tcell/v2"
 	"github.com/mr-chelyshkin/NetSurf"
 	"github.com/mr-chelyshkin/NetSurf/internal/controller"
 	"github.com/mr-chelyshkin/NetSurf/internal/ui"
@@ -40,24 +41,30 @@ func Run() error {
 		controller.WithScanSkipEmptySSIDs(),
 		controller.WithScanSortByLevel(),
 	))
-	view := ui.ContentTable(ctx, ui.ContentTableData{
-		Headers: []string{"action", "description"},
-		Data: []ui.ContentTableRow{
-			{
-				Action: func() {
-					_, ok := ctx.Value(NetSurf.CtxKeyWifiController).(controller.Controller)
-					if !ok {
-						panic("AAAA")
-					}
-					go connect(ctx, stop)
-				},
-				Data: []string{"connect", "scan and connect to wifi network"},
-			},
-			{
-				Action: func() {},
-				Data:   []string{"disconnect", "interrupt current wifi connection"},
-			},
-		},
-	})
-	return ui.Start(ctx, view)
+
+	output := make(chan string, 1)
+	ctx = context.WithValue(ctx, NetSurf.CtxKeyLoggerChannel, output)
+
+	go connect(ctx, stop)
+	for {
+		select {
+		case o := <-output:
+			fmt.Println(o)
+		}
+	}
+	//view := ui.ContentTable(ctx, ui.ContentTableData{
+	//	Headers: []string{"action", "description"},
+	//	Data: []ui.ContentTableRow{
+	//		{
+	//			Action: func() { go connect(ctx, stop) },
+	//			Data:   []string{"connect", "scan and connect to wifi network"},
+	//		},
+	//		{
+	//			Action: func() {},
+	//			Data:   []string{"disconnect", "interrupt current wifi connection"},
+	//		},
+	//	},
+	//})
+	//return ui.Start(ctx, view)
+	return nil
 }

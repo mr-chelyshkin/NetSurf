@@ -8,6 +8,42 @@ import (
 	"github.com/mr-chelyshkin/NetSurf/internal/controller"
 )
 
+func NetworkScan(ctx context.Context, c chan<- []map[string]string) {
+	output, ok := ctx.Value(NetSurf.CtxKeyLoggerChannel).(chan string)
+	if !ok {
+		return
+	}
+	wifi, ok := ctx.Value(NetSurf.CtxKeyWifiController).(controller.Controller)
+	if !ok {
+		output <- "missed controller"
+		return
+	}
+
+	f := func(ctx context.Context) {
+		done := make(chan struct{})
+		go func() {
+			networks := []map[string]string{}
+			for _, network := range wifi.Scan(ctx, output) {
+				networks = append(networks, map[string]string{
+					"ssid":    network.GetSSID(),
+					"freq":    network.GetFreq(),
+					"level":   network.GetLevel(),
+					"quality": network.GetQuality(),
+				})
+			}
+			c <- networks
+			close(done)
+		}()
+		select {
+		case <-ctx.Done():
+			return
+		case <-done:
+			return
+		}
+	}
+	go schedule(ctx, NetSurf.TickScanOperation, f)
+}
+
 func NetworkStatus(ctx context.Context, c chan<- string) {
 	wifi, ok := ctx.Value(NetSurf.CtxKeyWifiController).(controller.Controller)
 	if !ok {
@@ -57,38 +93,4 @@ func UserInfo(ctx context.Context, c chan<- [2]string) {
 		}
 	}
 	go schedule(ctx, NetSurf.TickCommonOperation, f)
-}
-
-func NetworkScan(ctx context.Context, c chan<- []map[string]string) {
-	networks := []map[string]string{}
-	wifi, ok := ctx.Value(NetSurf.CtxKeyWifiController).(controller.Controller)
-	if !ok {
-		c <- networks
-		return
-	}
-	output, _ := ctx.Value(NetSurf.CtxKeyLoggerChannel).(chan string)
-
-	f := func(ctx context.Context) {
-		networks := []map[string]string{}
-		done := make(chan struct{})
-		go func() {
-			for _, network := range wifi.Scan(ctx, output) {
-				networks = append(networks, map[string]string{
-					"ssid":    network.GetSSID(),
-					"quality": network.GetQuality(),
-					"freq":    network.GetFreq(),
-					"level":   network.GetLevel(),
-				})
-			}
-			c <- networks
-			close(done)
-		}()
-		select {
-		case <-ctx.Done():
-			c <- networks
-		case <-done:
-			return
-		}
-	}
-	go schedule(ctx, 10, f)
 }
