@@ -7,13 +7,16 @@ import (
 	"time"
 )
 
-var mutexMap = make(map[uintptr]*sync.Mutex)
-var mapMutex sync.Mutex
+var (
+	mutexMap = make(map[uintptr]*sync.Mutex)
+	mapMutex sync.Mutex
+)
 
 func schedule(ctx context.Context, tick int, f func(context.Context)) {
 	if tick < 2 {
 		tick = 2
 	}
+	worker(nil, time.Duration(tick-1)*time.Second, f)
 
 	ticker := time.NewTicker(time.Duration(tick) * time.Second)
 	defer ticker.Stop()
@@ -31,7 +34,11 @@ func schedule(ctx context.Context, tick int, f func(context.Context)) {
 }
 
 func worker(m *sync.Mutex, timeout time.Duration, f func(context.Context)) {
-	defer m.Unlock()
+	defer func() {
+		if m != nil {
+			m.Unlock()
+		}
+	}()
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()

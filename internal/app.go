@@ -44,11 +44,17 @@ func Run() error {
 		Headers: []string{"action", "description"},
 		Data: []ui.ContentTableRow{
 			{
-				Action: func(ctx context.Context) { go connect(ctx, stop) },
-				Data:   []string{"connect", "scan and connect to wifi network"},
+				Action: func() {
+					_, ok := ctx.Value(NetSurf.CtxKeyWifiController).(controller.Controller)
+					if !ok {
+						panic("AAAA")
+					}
+					go connect(ctx, stop)
+				},
+				Data: []string{"connect", "scan and connect to wifi network"},
 			},
 			{
-				Action: func(ctx context.Context) {},
+				Action: func() {},
 				Data:   []string{"disconnect", "interrupt current wifi connection"},
 			},
 		},

@@ -7,7 +7,7 @@ import (
 )
 
 type ContentTableRow struct {
-	Action func(ctx context.Context)
+	Action func()
 	Data   []string
 }
 
@@ -27,7 +27,7 @@ func ContentTable(ctx context.Context, data ContentTableData) *tview.Table {
 		}
 	}
 	content.SetSelectedFunc(func(r, c int) {
-		data.Data[r-1].Action(ctx)
+		data.Data[r-1].Action()
 	})
 	return content
 }

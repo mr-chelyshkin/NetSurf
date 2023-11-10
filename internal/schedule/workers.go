@@ -60,9 +60,7 @@ func UserInfo(ctx context.Context, c chan<- [2]string) {
 }
 
 func NetworkScan(ctx context.Context, c chan<- []map[string]string) {
-	var (
-		networks = []map[string]string{}
-	)
+	networks := []map[string]string{}
 	wifi, ok := ctx.Value(NetSurf.CtxKeyWifiController).(controller.Controller)
 	if !ok {
 		c <- networks
@@ -91,5 +89,5 @@ func NetworkScan(ctx context.Context, c chan<- []map[string]string) {
 			return
 		}
 	}
-	go schedule(ctx, NetSurf.TickCommonOperation, f)
+	go schedule(ctx, 6, f)
 }
