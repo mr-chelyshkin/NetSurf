@@ -15,7 +15,7 @@ func connect(ctx context.Context) {
 	view := ui.ContentTable(ui.ContentTableData{
 		Headers: []string{"ssid", "freq", "quality", "level"},
 	})
-	ui.DrawView(ctx, view)
+	ui.DrawView(ctx, "networks", view)
 
 	ctx.Value(
 		NetSurf.CtxKeyLoggerChannel,

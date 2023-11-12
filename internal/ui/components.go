@@ -1,6 +1,9 @@
 package ui
 
 import (
+	"github.com/gdamore/tcell/v2"
+	"strings"
+
 	"github.com/rivo/tview"
 )
 
@@ -26,19 +29,27 @@ type ContentTableData struct {
 
 // ContentTable creates and returns a new tview.Table widget populated with the provided data.
 func ContentTable(data ContentTableData) *tview.Table {
-	content := tview.NewTable().SetSelectable(true, false)
+	table := tview.NewTable().SetSelectable(true, false)
+	columnWidth := 100 / len(data.Headers)
+	table.SetBorderPadding(0, 0, 1, 1)
+
 	for i, header := range data.Headers {
-		content.SetCell(0, i, tview.NewTableCell(header).SetAlign(tview.AlignCenter).SetSelectable(false))
+		table.SetCell(0, i, tview.NewTableCell(strings.ToUpper(header)).
+			SetSelectable(false).
+			SetAlign(tview.AlignLeft).
+			SetMaxWidth(columnWidth).
+			SetExpansion(1),
+		)
 	}
 	for r, row := range data.Data {
 		for c, col := range row.Data {
-			content.SetCell(r+1, c, tview.NewTableCell(col))
+			table.SetCell(r+1, c, tview.NewTableCell(col)).SetBordersColor(tcell.ColorDodgerBlue)
 		}
 	}
-	content.SetSelectedFunc(func(r, c int) {
+	table.SetSelectedFunc(func(r, c int) {
 		data.Data[r-1].Action()
 	})
-	return content
+	return table
 }
 
 // UpdateTable updates the given tview.Table with new data.

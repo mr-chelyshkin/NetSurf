@@ -3,11 +3,12 @@ package ui
 import (
 	"context"
 
+	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 
-func mainFrame(ctx context.Context, p tview.Primitive) *tview.Frame {
-	content := primitive(p)
+func mainFrame(ctx context.Context, p tview.Primitive, title string) *tview.Frame {
+	content := primitive(title, p)
 	header := tview.NewFlex().
 		SetDirection(tview.FlexColumn).
 		AddItem(info(ctx), 0, 1, false).
@@ -20,5 +21,7 @@ func mainFrame(ctx context.Context, p tview.Primitive) *tview.Frame {
 		AddItem(header, 6, 1, false).
 		AddItem(content, 0, 3, true).
 		AddItem(footer, 16, 2, false)
-	return tview.NewFrame(frame)
+	f := tview.NewFrame(frame)
+	f.SetBackgroundColor(tcell.ColorBlack)
+	return f
 }

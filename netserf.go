@@ -7,7 +7,7 @@ const (
 	TickCommonOperation = 10
 
 	// TickScanOperation Wi-Fi scan period.
-	TickScanOperation = 6
+	TickScanOperation = 5
 
 	// CtxKeyWifiController context key for controller.Controller object.
 	CtxKeyWifiController = "wifi_controller"

@@ -41,7 +41,7 @@ const char* network_state() {
     iw_sockets_close(sock);
 
     if(strlen(essid) == 0) {
-        return "No active connection";
+        return "";
     }
     snprintf(
         response_msg,

@@ -15,12 +15,16 @@ import (
 	Common GUI objects which are parts of GUI frame.
 */
 
-func primitive(p tview.Primitive) *tview.Flex {
+func primitive(name string, p tview.Primitive) *tview.Flex {
 	flex := tview.NewFlex().
 		SetDirection(tview.FlexRow).
 		AddItem(p, 0, 1, true)
 
 	flex.SetBorder(true)
+	flex.SetBorderColor(tcell.ColorDodgerBlue)
+
+	flex.SetTitle(fmt.Sprintf(" %s ", name))
+	flex.SetTitleColor(tcell.ColorOrangeRed)
 	return flex
 }
 
@@ -70,7 +74,7 @@ func hotKeys(ctx context.Context) *tview.Flex {
 	if ok {
 		row := 0
 		for _, key := range content {
-			table.SetCell(row, 0, tview.NewTableCell("<"+tcell.KeyNames[key.Key]+">").SetTextColor(tcell.ColorBlue))
+			table.SetCell(row, 0, tview.NewTableCell("<"+tcell.KeyNames[key.Key]+">").SetTextColor(tcell.ColorDodgerBlue))
 			table.SetCell(row, 1, tview.NewTableCell(key.Description).SetTextColor(tcell.ColorGray))
 			row++
 		}

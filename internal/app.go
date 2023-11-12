@@ -50,7 +50,7 @@ func Run() {
 			},
 		},
 	})
-	if err := ui.StartView(ctx, view); err != nil {
+	if err := ui.StartView(ctx, "main", view); err != nil {
 		panic(err)
 	}
 	return
