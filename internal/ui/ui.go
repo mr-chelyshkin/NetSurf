@@ -13,7 +13,6 @@ func Start(ctx context.Context, p tview.Primitive) error {
 }
 
 func Draw(ctx context.Context, p tview.Primitive) {
-	// setFrame(Main(ctx, p))
 	setFrame(Main(ctx, p)).Draw()
 }
 
