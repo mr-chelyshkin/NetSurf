@@ -55,32 +55,3 @@ func Run() error {
 	})
 	return ui.Start(ctx, view)
 }
-
-func Run1() error {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	ctx = context.WithValue(ctx, NetSurf.CtxKeyWifiController, controller.New(
-		controller.WithScanSkipEmptySSIDs(),
-		controller.WithScanSortByLevel(),
-	))
-
-	output := make(chan string, 1)
-	ctx = context.WithValue(ctx, NetSurf.CtxKeyLoggerChannel, output)
-
-	//view := ui.ContentTable(ctx, ui.ContentTableData{
-	//	Headers: []string{"action", "description"},
-	//	Data: []ui.ContentTableRow{
-	//		{
-	//			Action: func() { go connect(ctx, stop) },
-	//			Data:   []string{"connect", "scan and connect to wifi network"},
-	//		},
-	//		{
-	//			Action: func() {},
-	//			Data:   []string{"disconnect", "interrupt current wifi connection"},
-	//		},
-	//	},
-	//})
-	//return ui.Start(ctx, view)
-	return nil
-}

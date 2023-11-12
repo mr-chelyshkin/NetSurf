@@ -101,23 +101,21 @@ func info(ctx context.Context) *tview.Flex {
 		for {
 			select {
 			case info := <-usrInfoCh:
-				App.QueueUpdate(func() {
-					switch info[0] {
-					case "error":
-						frame.SetCell(1, 1, tview.NewTableCell("error").SetTextColor(tcell.ColorRed))
-					default:
-						frame.SetCell(1, 1, tview.NewTableCell(info[0]).SetTextColor(tcell.ColorWhite))
-					}
-
-					switch info[1] {
-					case "error":
-						frame.SetCell(2, 1, tview.NewTableCell("error").SetTextColor(tcell.ColorRed))
-					case "0":
-						frame.SetCell(2, 1, tview.NewTableCell("yes").SetTextColor(tcell.ColorWhite))
-					default:
-						frame.SetCell(2, 1, tview.NewTableCell("run app with privileged mode").SetTextColor(tcell.ColorRed))
-					}
-				})
+				switch info[0] {
+				case "error":
+					frame.GetCell(1, 1).SetText("error").SetTextColor(tcell.ColorRed)
+				default:
+					frame.GetCell(1, 1).SetText(info[0]).SetTextColor(tcell.ColorWhite)
+				}
+				switch info[1] {
+				case "error":
+					frame.GetCell(2, 1).SetText("error").SetTextColor(tcell.ColorRed)
+				case "0":
+					frame.GetCell(2, 1).SetText("yes").SetTextColor(tcell.ColorWhite)
+				default:
+					frame.GetCell(2, 1).SetText("run app with privileged mode").SetTextColor(tcell.ColorRed)
+				}
+				App.Draw()
 			case <-ctx.Done():
 				return
 			}
@@ -129,10 +127,9 @@ func info(ctx context.Context) *tview.Flex {
 		schedule.NetworkStatus(ctx, networkStatusCh)
 		for {
 			select {
-			case info := <-networkStatusCh:
-				App.QueueUpdateDraw(func() {
-					frame.SetCell(3, 1, tview.NewTableCell(info).SetTextColor(tcell.ColorOrangeRed))
-				})
+			case network := <-networkStatusCh:
+				frame.GetCell(3, 1).SetText(network).SetTextColor(tcell.ColorRed)
+				App.Draw()
 			case <-ctx.Done():
 				close(networkStatusCh)
 				return

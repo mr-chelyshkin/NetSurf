@@ -2,15 +2,7 @@ package schedule
 
 import (
 	"context"
-	"reflect"
-	"sync"
 	"time"
-)
-
-// global mutex map.
-var (
-	mutexMap = make(map[uintptr]*sync.Mutex)
-	mapMutex sync.Mutex
 )
 
 func schedule(ctx context.Context, tick int, f func(context.Context)) {
@@ -20,42 +12,21 @@ func schedule(ctx context.Context, tick int, f func(context.Context)) {
 	ticker := time.NewTicker(time.Duration(tick) * time.Second)
 	defer ticker.Stop()
 
-	lockAndExec := func(f func(context.Context)) {
-		m := mutex(f)
-		m.Lock()
-
-		go worker(m, time.Duration(tick-1)*time.Second, f)
-	}
-
-	lockAndExec(f)
+	worker(time.Duration(tick-1)*time.Second, f)
 	for {
 		select {
 		case <-ticker.C:
-			lockAndExec(f)
+			worker(time.Duration(tick-1)*time.Second, f)
 		case <-ctx.Done():
 			return
 		}
 	}
 }
 
-func worker(m *sync.Mutex, timeout time.Duration, f func(context.Context)) {
-	defer m.Unlock()
-
+func worker(timeout time.Duration, f func(context.Context)) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	go f(ctx)
 	<-ctx.Done()
-}
-
-func mutex(f func(context.Context)) *sync.Mutex {
-	fk := reflect.ValueOf(f).Pointer()
-
-	mapMutex.Lock()
-	defer mapMutex.Unlock()
-
-	if _, exists := mutexMap[fk]; !exists {
-		mutexMap[fk] = &sync.Mutex{}
-	}
-	return mutexMap[fk]
 }

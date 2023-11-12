@@ -2,10 +2,9 @@ package schedule
 
 import (
 	"context"
-	"os/user"
-
 	"github.com/mr-chelyshkin/NetSurf"
 	"github.com/mr-chelyshkin/NetSurf/internal/controller"
+	"os/user"
 )
 
 // NetworkScan and write scan results to channel in foreground by period.
