@@ -2,32 +2,33 @@ package internal
 
 import (
 	"context"
+	"fmt"
 	"github.com/mr-chelyshkin/NetSurf"
 	"github.com/mr-chelyshkin/NetSurf/internal/schedule"
 	"github.com/mr-chelyshkin/NetSurf/internal/ui"
 )
 
-func connect(ctx context.Context, interrupt chan struct{}) {
-	networks := make(chan []map[string]string, 1)
-	output := make(chan string, 1)
+func connect(ctx context.Context) {
+	ctx = context.WithValue(ctx, NetSurf.CtxKeyLoggerChannel, make(chan string, 1))
 
-	ctx, cancel := context.WithCancel(ctx)
-	ctx = context.WithValue(ctx, NetSurf.CtxKeyLoggerChannel, output)
-
-	table := ui.ContentTableData{
+	view := ui.ContentTable(ui.ContentTableData{
 		Headers: []string{"ssid", "freq", "quality", "level"},
-		Data:    []ui.ContentTableRow{},
-	}
-	view := ui.ContentTable(table)
+	})
 	ui.DrawView(ctx, view)
 
+	networks := make(chan []map[string]string, 1)
 	schedule.NetworkScan(ctx, networks)
 	for {
 		select {
 		case networks := <-networks:
-			output <- "tick"
-
 			data := []ui.ContentTableRow{}
+
+			ctx.Value(
+				NetSurf.CtxKeyLoggerChannel,
+			).(chan string) <- fmt.Sprintf(
+				"scanning Wi-Fi networks every %ds",
+				NetSurf.TickScanOperation,
+			)
 			for _, network := range networks {
 				data = append(data, ui.ContentTableRow{
 					Action: nil,
@@ -41,9 +42,7 @@ func connect(ctx context.Context, interrupt chan struct{}) {
 			}
 			ui.UpdateTable(view, data)
 			ui.App.Draw()
-
-		case <-interrupt:
-			cancel()
+		case <-ctx.Done():
 			return
 		}
 	}

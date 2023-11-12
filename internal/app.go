@@ -12,23 +12,21 @@ import (
 )
 
 func Run() error {
-	stop := make(chan struct{}, 1)
-	output := make(chan string, 1)
-
-	ctx := context.WithValue(context.Background(), NetSurf.CtxKeyHotKeys, []ui.HotKeys{
+	ctx, cancel := context.WithCancel(context.Background())
+	ctx = context.WithValue(ctx, NetSurf.CtxKeyHotKeys, []ui.HotKeys{
 		{
 			Key:         tcell.KeyEsc,
 			Description: "Go to main menu",
 			Action: func(context.Context) {
-				stop <- struct{}{}
-				Run()
+				cancel()
+				_ = Run()
 			},
 		},
 		{
 			Key:         tcell.KeyCtrlC,
 			Description: "Exit",
 			Action: func(context.Context) {
-				stop <- struct{}{}
+				cancel()
 				ui.App.Stop()
 				os.Exit(0)
 			},
@@ -38,18 +36,17 @@ func Run() error {
 		controller.WithScanSkipEmptySSIDs(),
 		controller.WithScanSortByLevel(),
 	))
-	ctx = context.WithValue(ctx, NetSurf.CtxKeyLoggerChannel, output)
 
 	view := ui.ContentTable(ui.ContentTableData{
-		Headers: []string{"connect", "scan and connect to sifi network"},
+		Headers: []string{"connect", "description"},
 		Data: []ui.ContentTableRow{
 			{
-				Action: func() { go connect(ctx, stop) },
-				Data:   []string{"connect", "scan and connect to wi-fi"},
+				Action: func() { go connect(ctx) },
+				Data:   []string{"connect", "scan and connect to Wi-Fi network"},
 			},
 			{
 				Action: func() {},
-				Data:   []string{"disconnect", "interrupt current wifi connection"},
+				Data:   []string{"disconnect", "interrupt current Wi-Fi connection"},
 			},
 		},
 	})
