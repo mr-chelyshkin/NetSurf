@@ -31,3 +31,15 @@ func ContentTable(ctx context.Context, data ContentTableData) *tview.Table {
 	})
 	return content
 }
+
+func UpdateTable(ctx context.Context, t *tview.Table, data []ContentTableRow) {
+	for r, row := range data {
+		for c, col := range row.Data {
+			t.SetCell(r+1, c, tview.NewTableCell(col))
+		}
+	}
+	t.SetSelectedFunc(func(r, c int) {
+		data[r-1].Action()
+	})
+	App.Draw()
+}
