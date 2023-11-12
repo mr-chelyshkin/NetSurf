@@ -16,7 +16,7 @@ type Controller struct {
 }
 
 // New return Controller object.
-func New(opts ...ControllerOpts) Controller {
+func New(opts ...Opts) Controller {
 	c := &Controller{}
 	for _, opt := range opts {
 		opt(c)

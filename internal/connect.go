@@ -3,6 +3,7 @@ package internal
 import (
 	"context"
 	"fmt"
+
 	"github.com/mr-chelyshkin/NetSurf"
 	"github.com/mr-chelyshkin/NetSurf/internal/schedule"
 	"github.com/mr-chelyshkin/NetSurf/internal/ui"
@@ -16,6 +17,13 @@ func connect(ctx context.Context) {
 	})
 	ui.DrawView(ctx, view)
 
+	ctx.Value(
+		NetSurf.CtxKeyLoggerChannel,
+	).(chan string) <- fmt.Sprintf(
+		"scanning Wi-Fi networks every %ds",
+		NetSurf.TickScanOperation,
+	)
+
 	networks := make(chan []map[string]string, 1)
 	schedule.NetworkScan(ctx, networks)
 	for {
@@ -23,12 +31,6 @@ func connect(ctx context.Context) {
 		case networks := <-networks:
 			data := []ui.ContentTableRow{}
 
-			ctx.Value(
-				NetSurf.CtxKeyLoggerChannel,
-			).(chan string) <- fmt.Sprintf(
-				"scanning Wi-Fi networks every %ds",
-				NetSurf.TickScanOperation,
-			)
 			for _, network := range networks {
 				data = append(data, ui.ContentTableRow{
 					Action: nil,

@@ -4,9 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/gdamore/tcell/v2"
 	"github.com/mr-chelyshkin/NetSurf"
 	"github.com/mr-chelyshkin/NetSurf/internal/schedule"
+
+	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 

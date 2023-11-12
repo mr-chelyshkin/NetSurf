@@ -1,24 +1,24 @@
 package controller
 
-// ControllerOpts ...
-type ControllerOpts func(*Controller)
+// Opts ...
+type Opts func(*Controller)
 
 // WithScanSkipEmptySSIDs do not show networks in scan result with empty SSID.
-func WithScanSkipEmptySSIDs() ControllerOpts {
+func WithScanSkipEmptySSIDs() Opts {
 	return func(c *Controller) {
 		c.scanSkipEmptySsid = true
 	}
 }
 
 // WithScanSortByLevel sort scan results by signal level, desc.
-func WithScanSortByLevel() ControllerOpts {
+func WithScanSortByLevel() Opts {
 	return func(c *Controller) {
 		c.scanSortBySignalLvl = true
 	}
 }
 
 // WithScanSortByName sort scan results by network SSID, desc.
-func WithScanSortByName() ControllerOpts {
+func WithScanSortByName() Opts {
 	return func(c *Controller) {
 		c.scanSortBySsidName = true
 	}

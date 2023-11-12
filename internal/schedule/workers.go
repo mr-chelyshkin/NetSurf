@@ -2,9 +2,10 @@ package schedule
 
 import (
 	"context"
+	"os/user"
+
 	"github.com/mr-chelyshkin/NetSurf"
 	"github.com/mr-chelyshkin/NetSurf/internal/controller"
-	"os/user"
 )
 
 // NetworkScan schedule worker.

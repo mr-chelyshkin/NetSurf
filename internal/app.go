@@ -4,14 +4,14 @@ import (
 	"context"
 	"os"
 
-	"github.com/gdamore/tcell/v2"
-
 	"github.com/mr-chelyshkin/NetSurf"
 	"github.com/mr-chelyshkin/NetSurf/internal/controller"
 	"github.com/mr-chelyshkin/NetSurf/internal/ui"
+
+	"github.com/gdamore/tcell/v2"
 )
 
-func Run() error {
+func Run() {
 	ctx, cancel := context.WithCancel(context.Background())
 	ctx = context.WithValue(ctx, NetSurf.CtxKeyHotKeys, []ui.HotKeys{
 		{
@@ -19,7 +19,7 @@ func Run() error {
 			Description: "Go to main menu",
 			Action: func(context.Context) {
 				cancel()
-				_ = Run()
+				Run()
 			},
 		},
 		{
@@ -50,5 +50,8 @@ func Run() error {
 			},
 		},
 	})
-	return ui.StartView(ctx, view)
+	if err := ui.StartView(ctx, view); err != nil {
+		panic(err)
+	}
+	return
 }
