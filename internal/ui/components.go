@@ -1,8 +1,9 @@
 package ui
 
 import (
-	"github.com/gdamore/tcell/v2"
 	"strings"
+
+	"github.com/gdamore/tcell/v2"
 
 	"github.com/rivo/tview"
 )
@@ -27,7 +28,7 @@ type ContentTableData struct {
 	Data []ContentTableRow
 }
 
-// ContentTable creates and returns a new tview.Table widget populated with the provided data.
+// ContentTable create and return a new tview.Table widget with the provided data.
 func ContentTable(data ContentTableData) *tview.Table {
 	table := tview.NewTable().SetSelectable(true, false)
 	columnWidth := 100 / len(data.Headers)
@@ -46,7 +47,7 @@ func ContentTable(data ContentTableData) *tview.Table {
 			table.SetCell(r+1, c, tview.NewTableCell(col)).SetBordersColor(tcell.ColorDodgerBlue)
 		}
 	}
-	table.SetSelectedFunc(func(r, c int) {
+	table.SetSelectedFunc(func(r, _ int) {
 		data.Data[r-1].Action()
 	})
 	return table
@@ -59,8 +60,15 @@ func UpdateTable(table *tview.Table, data []ContentTableRow) {
 			table.SetCell(r+1, c, tview.NewTableCell(col))
 		}
 	}
-	table.SetSelectedFunc(func(r, c int) {
+	table.SetSelectedFunc(func(r, _ int) {
 		data[r-1].Action()
 	})
 	App.Draw()
+}
+
+// ContentModal create and return a new tview.Modal widget with the provided data.
+func ContentModal() *tview.Modal {
+	modal := tview.NewModal()
+	modal.SetText("Hello")
+	return modal
 }

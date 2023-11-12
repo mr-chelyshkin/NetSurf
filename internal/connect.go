@@ -15,7 +15,7 @@ func connect(ctx context.Context) {
 	view := ui.ContentTable(ui.ContentTableData{
 		Headers: []string{"ssid", "freq", "quality", "level"},
 	})
-	ui.DrawView(ctx, "networks", view)
+	go ui.DrawView(ctx, "networks", view)
 
 	ctx.Value(
 		NetSurf.CtxKeyLoggerChannel,
@@ -33,7 +33,10 @@ func connect(ctx context.Context) {
 
 			for _, network := range networks {
 				data = append(data, ui.ContentTableRow{
-					Action: nil,
+					Action: func() {
+						modal := ui.ContentModal()
+						go ui.DrawView(ctx, "connect to network", modal)
+					},
 					Data: []string{
 						network["ssid"],
 						network["freq"],
