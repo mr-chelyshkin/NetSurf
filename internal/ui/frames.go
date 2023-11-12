@@ -6,7 +6,7 @@ import (
 	"github.com/rivo/tview"
 )
 
-func Main(ctx context.Context, p tview.Primitive) *tview.Frame {
+func mainFrame(ctx context.Context, p tview.Primitive) *tview.Frame {
 	content := primitive(p)
 	header := tview.NewFlex().
 		SetDirection(tview.FlexColumn).

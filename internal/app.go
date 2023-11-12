@@ -40,7 +40,7 @@ func Run() error {
 	))
 	ctx = context.WithValue(ctx, NetSurf.CtxKeyLoggerChannel, output)
 
-	view := ui.ContentTable(ctx, ui.ContentTableData{
+	view := ui.ContentTable(ui.ContentTableData{
 		Headers: []string{"connect", "scan and connect to sifi network"},
 		Data: []ui.ContentTableRow{
 			{
@@ -53,5 +53,5 @@ func Run() error {
 			},
 		},
 	})
-	return ui.Start(ctx, view)
+	return ui.StartView(ctx, view)
 }

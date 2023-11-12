@@ -6,14 +6,19 @@ import (
 	"github.com/rivo/tview"
 )
 
+// App is a main application view object.
 var App = tview.NewApplication()
 
-func Start(ctx context.Context, p tview.Primitive) error {
-	return setFrame(Main(ctx, p)).Run()
+// StartView run console GUI.
+// Execute only in main process, extend mainFrame GUI layout.
+func StartView(ctx context.Context, p tview.Primitive) error {
+	return setFrame(mainFrame(ctx, p)).Run()
 }
 
-func Draw(ctx context.Context, p tview.Primitive) {
-	setFrame(Main(ctx, p)).Draw()
+// DrawView run new GUI view with income tview.Primitive as main object.
+// Execute on cli commands, extend mainFrame GUI layout.
+func DrawView(ctx context.Context, p tview.Primitive) {
+	setFrame(mainFrame(ctx, p)).Draw()
 }
 
 func setFrame(frame *tview.Frame) *tview.Application {

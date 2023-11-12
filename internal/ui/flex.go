@@ -10,6 +10,10 @@ import (
 	"github.com/rivo/tview"
 )
 
+/*
+	Common GUI objects which are parts of GUI frame.
+*/
+
 func primitive(p tview.Primitive) *tview.Flex {
 	flex := tview.NewFlex().
 		SetDirection(tview.FlexRow).
@@ -20,7 +24,7 @@ func primitive(p tview.Primitive) *tview.Flex {
 }
 
 func writer(ctx context.Context) *tview.Flex {
-	content, ok := ctx.Value(NetSurf.CtxKeyLoggerChannel).(chan string)
+	output, ok := ctx.Value(NetSurf.CtxKeyLoggerChannel).(chan string)
 	if !ok {
 		return tview.NewFlex()
 	}
@@ -35,7 +39,7 @@ func writer(ctx context.Context) *tview.Flex {
 	go func() {
 		for {
 			select {
-			case output := <-content:
+			case output := <-output:
 				App.QueueUpdateDraw(func() {
 					_, _ = fmt.Fprintf(frame, "%s\n", output)
 				})
@@ -48,20 +52,25 @@ func writer(ctx context.Context) *tview.Flex {
 	return flex
 }
 
+// HotKeys is a structure for storing hot key data used in a GUI helper and hot key listener.
+// Expects the HotKeys structure to be present in the provided context.
 type HotKeys struct {
-	Action      func(ctx context.Context)
+	// Action is a function to be executed when the hot key is activated.
+	Action func(ctx context.Context)
+	// Description is the text describing the hot key's purpose in the GUI.
 	Description string
-	Key         tcell.Key
+	// Key is the key code in the format of tcell.Key.
+	Key tcell.Key
 }
 
 func hotKeys(ctx context.Context) *tview.Flex {
-	frame := tview.NewTable()
+	table := tview.NewTable()
 	content, ok := ctx.Value(NetSurf.CtxKeyHotKeys).([]HotKeys)
 	if ok {
 		row := 0
 		for _, key := range content {
-			frame.SetCell(row, 0, tview.NewTableCell("<"+tcell.KeyNames[key.Key]+">").SetTextColor(tcell.ColorBlue))
-			frame.SetCell(row, 1, tview.NewTableCell(key.Description).SetTextColor(tcell.ColorGray))
+			table.SetCell(row, 0, tview.NewTableCell("<"+tcell.KeyNames[key.Key]+">").SetTextColor(tcell.ColorBlue))
+			table.SetCell(row, 1, tview.NewTableCell(key.Description).SetTextColor(tcell.ColorGray))
 			row++
 		}
 	}
@@ -78,7 +87,7 @@ func hotKeys(ctx context.Context) *tview.Flex {
 	)
 	flex := tview.NewFlex().
 		SetDirection(tview.FlexRow).
-		AddItem(frame, 0, 1, false)
+		AddItem(table, 0, 1, false)
 
 	flex.SetBorder(false)
 	return flex
@@ -92,7 +101,7 @@ func info(ctx context.Context) *tview.Flex {
 	frame.SetCell(1, 1, tview.NewTableCell("n/a").SetTextColor(tcell.ColorOrangeRed))
 	frame.SetCell(2, 0, tview.NewTableCell("Privileged:").SetTextColor(tcell.ColorYellow))
 	frame.SetCell(2, 1, tview.NewTableCell("n/a").SetTextColor(tcell.ColorOrangeRed))
-	frame.SetCell(3, 0, tview.NewTableCell("CurrentConn:").SetTextColor(tcell.ColorYellow))
+	frame.SetCell(3, 0, tview.NewTableCell("Wi-Fi network:").SetTextColor(tcell.ColorYellow))
 	frame.SetCell(3, 1, tview.NewTableCell("n/a").SetTextColor(tcell.ColorOrangeRed))
 
 	usrInfoCh := make(chan [2]string, 1)
@@ -101,12 +110,15 @@ func info(ctx context.Context) *tview.Flex {
 		for {
 			select {
 			case info := <-usrInfoCh:
+				// username field.
 				switch info[0] {
 				case "error":
 					frame.GetCell(1, 1).SetText("error").SetTextColor(tcell.ColorRed)
 				default:
 					frame.GetCell(1, 1).SetText(info[0]).SetTextColor(tcell.ColorWhite)
 				}
+
+				// user permission field.
 				switch info[1] {
 				case "error":
 					frame.GetCell(2, 1).SetText("error").SetTextColor(tcell.ColorRed)
@@ -115,6 +127,7 @@ func info(ctx context.Context) *tview.Flex {
 				default:
 					frame.GetCell(2, 1).SetText("run app with privileged mode").SetTextColor(tcell.ColorRed)
 				}
+
 				App.Draw()
 			case <-ctx.Done():
 				return
@@ -128,7 +141,13 @@ func info(ctx context.Context) *tview.Flex {
 		for {
 			select {
 			case network := <-networkStatusCh:
-				frame.GetCell(3, 1).SetText(network).SetTextColor(tcell.ColorRed)
+				switch network {
+				case "":
+					frame.GetCell(3, 1).SetText("not connected").SetTextColor(tcell.ColorOrangeRed)
+				default:
+					frame.GetCell(3, 1).SetText(network).SetTextColor(tcell.ColorWhite)
+				}
+
 				App.Draw()
 			case <-ctx.Done():
 				close(networkStatusCh)

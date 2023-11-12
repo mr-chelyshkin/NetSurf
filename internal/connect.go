@@ -18,8 +18,8 @@ func connect(ctx context.Context, interrupt chan struct{}) {
 		Headers: []string{"ssid", "freq", "quality", "level"},
 		Data:    []ui.ContentTableRow{},
 	}
-	view := ui.ContentTable(ctx, table)
-	ui.Draw(ctx, view)
+	view := ui.ContentTable(table)
+	ui.DrawView(ctx, view)
 
 	schedule.NetworkScan(ctx, networks)
 	for {
@@ -39,7 +39,7 @@ func connect(ctx context.Context, interrupt chan struct{}) {
 					},
 				})
 			}
-			ui.UpdateTable(ctx, view, data)
+			ui.UpdateTable(view, data)
 			ui.App.Draw()
 
 		case <-interrupt:
