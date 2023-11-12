@@ -7,7 +7,8 @@ import (
 	"os/user"
 )
 
-// NetworkScan and write scan results to channel in foreground by period.
+// NetworkScan schedule worker.
+// Scanning Wi-Fi networks (by controller.Controller) and return result to income chanel.
 func NetworkScan(ctx context.Context, c chan<- []map[string]string) {
 	output, ok := ctx.Value(NetSurf.CtxKeyLoggerChannel).(chan string)
 	if !ok {
@@ -19,7 +20,7 @@ func NetworkScan(ctx context.Context, c chan<- []map[string]string) {
 		return
 	}
 
-	f := func(ctx context.Context) {
+	f := func(internalCtx context.Context) {
 		done := make(chan struct{})
 
 		go func() {
@@ -37,7 +38,7 @@ func NetworkScan(ctx context.Context, c chan<- []map[string]string) {
 			c <- networks
 		}()
 		select {
-		case <-ctx.Done():
+		case <-internalCtx.Done():
 			return
 		case <-done:
 			return
@@ -46,6 +47,8 @@ func NetworkScan(ctx context.Context, c chan<- []map[string]string) {
 	go schedule(ctx, NetSurf.TickScanOperation, f)
 }
 
+// NetworkStatus schedule worker.
+// Check current Wi-Fi connection (by controller.Controller) and return ssid to income chanel.
 func NetworkStatus(ctx context.Context, c chan<- string) {
 	wifi, ok := ctx.Value(NetSurf.CtxKeyWifiController).(controller.Controller)
 	if !ok {
@@ -53,7 +56,7 @@ func NetworkStatus(ctx context.Context, c chan<- string) {
 		return
 	}
 
-	f := func(ctx context.Context) {
+	f := func(internalCtx context.Context) {
 		done := make(chan struct{})
 
 		go func() {
@@ -62,7 +65,7 @@ func NetworkStatus(ctx context.Context, c chan<- string) {
 			c <- wifi.Status(ctx, nil)
 		}()
 		select {
-		case <-ctx.Done():
+		case <-internalCtx.Done():
 			c <- "error"
 		case <-done:
 			return
@@ -71,13 +74,15 @@ func NetworkStatus(ctx context.Context, c chan<- string) {
 	go schedule(ctx, NetSurf.TickCommonOperation, f)
 }
 
+// UserInfo schedule worker.
+// Get current User and Permissions and return result to income channel as [2]string{}.
 func UserInfo(ctx context.Context, c chan<- [2]string) {
 	var (
 		uid = "error"
 		usr = "error"
 	)
 
-	f := func(ctx context.Context) {
+	f := func(internalCtx context.Context) {
 		done := make(chan struct{})
 
 		go func() {
@@ -90,7 +95,7 @@ func UserInfo(ctx context.Context, c chan<- [2]string) {
 			}
 		}()
 		select {
-		case <-ctx.Done():
+		case <-internalCtx.Done():
 			c <- [2]string{usr, uid}
 		case <-done:
 			c <- [2]string{usr, uid}
