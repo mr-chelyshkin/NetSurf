@@ -34,7 +34,7 @@ func connect(ctx context.Context) {
 			for _, network := range networks {
 				data = append(data, ui.ContentTableRow{
 					Action: func() {
-						modal := ui.ContentModal()
+						modal := ui.ContentModal(view)
 						go ui.DrawView(ctx, "connect to network", modal)
 					},
 					Data: []string{
