@@ -67,22 +67,8 @@ func UpdateTable(table *tview.Table, data []ContentTableRow) {
 }
 
 // ContentModal create and return a new tview.Modal widget with the provided data.
-func ContentModal(pp tview.Primitive) tview.Primitive {
-	modal := func(p tview.Primitive, w, h int) tview.Primitive {
-		return tview.NewFlex().
-			AddItem(nil, 0, 1, false).
-			AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
-				AddItem(nil, 0, 1, false).
-				AddItem(p, h, 1, true).
-				AddItem(nil, 0, 1, false),
-				w, 1, true).
-			AddItem(nil, 0, 1, false)
-	}
-	pages := tview.NewPages().
-		AddPage("back", pp, true, true).
-		AddPage("modal", modal(tview.NewBox().SetBorder(true).SetTitle("asd"), 40, 10), true, true)
-	return pages
-	// modal := tview.NewModal()
-	// modal.SetText("Hello")
-	// return modal
+func ContentModal() *tview.Modal {
+	modal := tview.NewModal().
+		SetBackgroundColor(tcell.ColorBlack).SetText("shit")
+	return modal
 }

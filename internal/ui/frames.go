@@ -25,3 +25,18 @@ func mainFrame(ctx context.Context, p tview.Primitive, title string) *tview.Fram
 	f.SetBackgroundColor(tcell.ColorBlack)
 	return f
 }
+
+func modalFrame(ctx context.Context, background, modal tview.Primitive, title string, w, h int) *tview.Frame {
+	content := tview.NewFlex().
+		AddItem(nil, 0, 1, false).
+		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
+			AddItem(nil, 0, 1, false).
+			AddItem(modal, h, 1, true).
+			AddItem(nil, 0, 1, false),
+			w, 1, true).
+		AddItem(nil, 0, 1, false)
+	container := tview.NewPages().
+		AddPage("background", background, true, true).
+		AddPage("modal", content, true, true)
+	return mainFrame(ctx, container, title)
+}

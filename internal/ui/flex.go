@@ -23,8 +23,10 @@ func primitive(name string, p tview.Primitive) *tview.Flex {
 	flex.SetBorder(true)
 	flex.SetBorderColor(tcell.ColorDodgerBlue)
 
-	flex.SetTitle(fmt.Sprintf(" %s ", name))
 	flex.SetTitleColor(tcell.ColorOrangeRed)
+	if name != "" {
+		flex.SetTitle(fmt.Sprintf(" %s ", name))
+	}
 	return flex
 }
 
