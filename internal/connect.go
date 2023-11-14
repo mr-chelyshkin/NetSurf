@@ -24,18 +24,28 @@ func connect(ctx context.Context) {
 		NetSurf.TickScanOperation,
 	)
 
+	connForm := func(ctx context.Context, ssid string) func() {
+		form := ui.ContentForm(ui.ContentFormData{}).
+			AddInputField("ssid", ssid, 0, nil, nil).
+			AddInputField("country", "US", 0, nil, nil).
+			AddPasswordField("password", "", 0, '*', nil).
+			AddButton("asd", func() {})
+
+		return func() {
+			ui.DrawModal(ctx, fmt.Sprintf("connect to %s", ssid), view, form)
+		}
+	}
+
 	networks := make(chan []map[string]string, 1)
 	schedule.NetworkScan(ctx, networks)
 	for {
 		select {
 		case networks := <-networks:
-			data := []ui.ContentTableRow{}
+			rows := []ui.ContentTableRow{}
 
 			for _, network := range networks {
-				data = append(data, ui.ContentTableRow{
-					Action: func() {
-						ui.DrawModal(ctx, "shit", view, ui.ContentModal())
-					},
+				rows = append(rows, ui.ContentTableRow{
+					Action: connForm(ctx, network["ssid"]),
 					Data: []string{
 						network["ssid"],
 						network["freq"],
@@ -44,7 +54,7 @@ func connect(ctx context.Context) {
 					},
 				})
 			}
-			ui.UpdateTable(view, data)
+			ui.UpdateTable(view, rows)
 			ui.App.Draw()
 		case <-ctx.Done():
 			return

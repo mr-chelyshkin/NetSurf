@@ -31,7 +31,7 @@ func modalFrame(ctx context.Context, background, modal tview.Primitive, title st
 		AddItem(nil, 0, 1, false).
 		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
 			AddItem(nil, 0, 1, false).
-			AddItem(modal, h, 1, true).
+			AddItem(primitive(title, modal), h, 1, true).
 			AddItem(nil, 0, 1, false),
 			w, 1, true).
 		AddItem(nil, 0, 1, false)

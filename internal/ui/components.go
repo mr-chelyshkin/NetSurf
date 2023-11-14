@@ -66,9 +66,29 @@ func UpdateTable(table *tview.Table, data []ContentTableRow) {
 	App.Draw()
 }
 
+// ContentFormData ...
+type ContentFormData struct {
+}
+
+// ContentForm ...
+func ContentForm(data ContentFormData) *tview.Form {
+	return tview.NewForm()
+}
+
+// ContentModalData structures the data necessary to build a content modal.
+type ContentModalData struct {
+	Action map[string]func()
+	Text   string
+}
+
 // ContentModal create and return a new tview.Modal widget with the provided data.
-func ContentModal() *tview.Modal {
-	modal := tview.NewModal().
-		SetBackgroundColor(tcell.ColorBlack).SetText("shit")
-	return modal
+func ContentModal(data ContentModalData) *tview.Modal {
+	keys := []string{}
+	for k, _ := range data.Action {
+		keys = append(keys, k)
+	}
+	return tview.NewModal().
+		SetDoneFunc(func(buttonIndex int, buttonLabel string) { data.Action[buttonLabel]() }).
+		SetBackgroundColor(tcell.ColorBlack).
+		AddButtons(keys)
 }
