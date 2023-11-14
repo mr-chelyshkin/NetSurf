@@ -3,6 +3,8 @@ package internal
 import (
 	"context"
 	"fmt"
+	"github.com/mr-chelyshkin/NetSurf/pkg/wifi"
+	"github.com/rivo/tview"
 
 	"github.com/mr-chelyshkin/NetSurf"
 	"github.com/mr-chelyshkin/NetSurf/internal/schedule"
@@ -45,8 +47,15 @@ func connect(ctx context.Context) {
 		})
 		form = ui.UpdateFormButtons(form, []ui.ContentFormButton{
 			{
-				Label:  "connect",
-				Action: func() {},
+				Label: "connect",
+				Action: func() {
+					ssid := form.GetFormItem(0).(*tview.InputField).GetText()
+					country := form.GetFormItem(1).(*tview.InputField).GetText()
+					password := form.GetFormItem(2).(*tview.InputField).GetText()
+					go func() {
+						wifi.Conn(ssid, password, country, ctx.Value(NetSurf.CtxKeyLoggerChannel).(chan string))
+					}()
+				},
 			},
 			{
 				Label:  "cancel",
