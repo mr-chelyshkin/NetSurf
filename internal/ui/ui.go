@@ -22,7 +22,7 @@ func DrawView(ctx context.Context, title string, p tview.Primitive) {
 
 // DrawModal run GUI modal view with tview.Primitive as a modal background.
 func DrawModal(ctx context.Context, title string, background, modal tview.Primitive) {
-	go setFrame(modalFrame(ctx, background, modal, title, 40, 10)).Draw()
+	go setFrame(modalFrame(ctx, background, modal, title, 40, 15)).Draw()
 }
 
 func setFrame(frame *tview.Frame) *tview.Application {

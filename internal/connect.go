@@ -25,12 +25,33 @@ func connect(ctx context.Context) {
 	)
 
 	connForm := func(ctx context.Context, ssid string) func() {
-		form := ui.ContentForm(ui.ContentFormData{}).
-			AddInputField("ssid", ssid, 0, nil, nil).
-			AddInputField("country", "US", 0, nil, nil).
-			AddPasswordField("password", "", 0, '*', nil).
-			AddButton("asd", func() {})
-
+		form := ui.ContentForm(ui.ContentFormData{
+			Fields: []ui.ContentFormField{
+				{
+					Type:  "input",
+					Label: "ssid",
+					Value: ssid,
+				},
+				{
+					Type:  "input",
+					Label: "country",
+					Value: "US",
+				},
+				{
+					Type:  "password",
+					Label: "password",
+				},
+			},
+			Buttons: []ui.ContentFormButton{
+				{
+					Action: func() {
+						ctx.Value(NetSurf.CtxKeyLoggerChannel).(chan string) <- "cancel conn"
+						go ui.DrawView(ctx, "networks", view)
+					},
+					Label: "cancel",
+				},
+			},
+		})
 		return func() {
 			ui.DrawModal(ctx, fmt.Sprintf("connect to %s", ssid), view, form)
 		}
