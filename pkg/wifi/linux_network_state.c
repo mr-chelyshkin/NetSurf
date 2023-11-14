@@ -46,7 +46,7 @@ const char* network_state() {
     snprintf(
         response_msg,
         sizeof(response_msg),
-        "Connected to: %s",
+        "%s",
         essid
     );
     return response_msg;

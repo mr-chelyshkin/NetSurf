@@ -14,11 +14,12 @@ type ContentModalData struct {
 // ContentModal create and return a new tview.Modal widget with the provided data.
 func ContentModal(data ContentModalData) *tview.Modal {
 	keys := []string{}
-	for k, _ := range data.Action {
+	for k := range data.Action {
 		keys = append(keys, k)
 	}
 	return tview.NewModal().
-		SetDoneFunc(func(buttonIndex int, buttonLabel string) { data.Action[buttonLabel]() }).
+		SetDoneFunc(func(_ int, buttonLabel string) { data.Action[buttonLabel]() }).
+		SetButtonBackgroundColor(tcell.ColorDodgerBlue).
 		SetBackgroundColor(tcell.ColorBlack).
 		AddButtons(keys)
 }

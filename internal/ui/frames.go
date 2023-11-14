@@ -38,5 +38,5 @@ func modalFrame(ctx context.Context, background, modal tview.Primitive, title st
 	container := tview.NewPages().
 		AddPage("background", background, true, true).
 		AddPage("modal", content, true, true)
-	return mainFrame(ctx, container, title)
+	return mainFrame(ctx, container, "modal frame")
 }

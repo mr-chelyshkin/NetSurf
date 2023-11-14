@@ -1,6 +1,9 @@
 package ui
 
-import "github.com/rivo/tview"
+import (
+	"github.com/gdamore/tcell/v2"
+	"github.com/rivo/tview"
+)
 
 type field int
 
@@ -34,7 +37,9 @@ type ContentFormData struct {
 
 // ContentForm create and return a new tview.Form widget with the provided data.
 func ContentForm(data ContentFormData) *tview.Form {
-	form := tview.NewForm()
+	form := tview.NewForm().
+		SetButtonBackgroundColor(tcell.ColorDodgerBlue).
+		SetFieldBackgroundColor(tcell.ColorDodgerBlue)
 	for _, field := range data.Fields {
 		switch field.Type {
 		case FieldInput:
