@@ -4,13 +4,8 @@ import (
 	"strings"
 
 	"github.com/gdamore/tcell/v2"
-
 	"github.com/rivo/tview"
 )
-
-/*
-	Main GUI objects which are parts of GUI frame.
-*/
 
 // ContentTableRow represents a single row in a content table.
 type ContentTableRow struct {
@@ -64,56 +59,4 @@ func UpdateTable(table *tview.Table, data []ContentTableRow) {
 		data[r-1].Action()
 	})
 	App.Draw()
-}
-
-type ContentFormField struct {
-	Label string
-	Type  string
-	Value string
-}
-
-type ContentFormButton struct {
-	Action func()
-	Label  string
-}
-
-// ContentFormData ...
-type ContentFormData struct {
-	Fields  []ContentFormField
-	Buttons []ContentFormButton
-}
-
-// ContentForm ...
-func ContentForm(data ContentFormData) *tview.Form {
-	f := tview.NewForm()
-	for _, field := range data.Fields {
-		switch field.Type {
-		case "input":
-			f.AddInputField(field.Label, field.Value, 0, nil, nil)
-		case "password":
-			f.AddPasswordField(field.Label, field.Value, 0, '*', nil)
-		}
-	}
-	for _, button := range data.Buttons {
-		f.AddButton(button.Label, button.Action)
-	}
-	return f
-}
-
-// ContentModalData structures the data necessary to build a content modal.
-type ContentModalData struct {
-	Action map[string]func()
-	Text   string
-}
-
-// ContentModal create and return a new tview.Modal widget with the provided data.
-func ContentModal(data ContentModalData) *tview.Modal {
-	keys := []string{}
-	for k, _ := range data.Action {
-		keys = append(keys, k)
-	}
-	return tview.NewModal().
-		SetDoneFunc(func(buttonIndex int, buttonLabel string) { data.Action[buttonLabel]() }).
-		SetBackgroundColor(tcell.ColorBlack).
-		AddButtons(keys)
 }
