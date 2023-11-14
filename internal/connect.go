@@ -45,10 +45,13 @@ func connect(ctx context.Context) {
 			Buttons: []ui.ContentFormButton{
 				{
 					Action: func() {
-						ctx.Value(NetSurf.CtxKeyLoggerChannel).(chan string) <- "cancel conn"
-						go ui.DrawView(ctx, "networks", view)
+
 					},
-					Label: "cancel",
+					Label: "connect",
+				},
+				{
+					Action: func() { go ui.DrawView(ctx, "networks", view) },
+					Label:  "cancel",
 				},
 			},
 		})
