@@ -54,6 +54,7 @@ func connect(ctx context.Context) {
 					password := form.GetFormItem(2).(*tview.InputField).GetText()
 					go func() {
 						wifi.Conn(ssid, password, country, ctx.Value(NetSurf.CtxKeyLoggerChannel).(chan string))
+						ui.DrawView(ctx, "networks", view)
 					}()
 				},
 			},
