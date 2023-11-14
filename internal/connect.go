@@ -3,12 +3,13 @@ package internal
 import (
 	"context"
 	"fmt"
-	"github.com/mr-chelyshkin/NetSurf/pkg/wifi"
-	"github.com/rivo/tview"
 
 	"github.com/mr-chelyshkin/NetSurf"
 	"github.com/mr-chelyshkin/NetSurf/internal/schedule"
 	"github.com/mr-chelyshkin/NetSurf/internal/ui"
+	"github.com/mr-chelyshkin/NetSurf/pkg/wifi"
+
+	"github.com/rivo/tview"
 )
 
 func connect(ctx context.Context) {
@@ -17,15 +18,6 @@ func connect(ctx context.Context) {
 	view := ui.ContentTable(ui.ContentTableData{
 		Headers: []string{"ssid", "freq", "quality", "level"},
 	})
-	go ui.DrawView(ctx, "networks", view)
-
-	ctx.Value(
-		NetSurf.CtxKeyLoggerChannel,
-	).(chan string) <- fmt.Sprintf(
-		"scanning Wi-Fi networks every %ds",
-		NetSurf.TickScanOperation,
-	)
-
 	connForm := func(ctx context.Context, ssid string) func() {
 		form := ui.ContentForm(ui.ContentFormData{
 			Fields: []ui.ContentFormField{
@@ -49,12 +41,16 @@ func connect(ctx context.Context) {
 			{
 				Label: "connect",
 				Action: func() {
-					ssid := form.GetFormItem(0).(*tview.InputField).GetText()
-					country := form.GetFormItem(1).(*tview.InputField).GetText()
-					password := form.GetFormItem(2).(*tview.InputField).GetText()
 					go func() {
-						wifi.Conn(ssid, password, country, ctx.Value(NetSurf.CtxKeyLoggerChannel).(chan string))
-						ui.DrawView(ctx, "networks", view)
+						ok := wifi.Conn(
+							form.GetFormItem(0).(*tview.InputField).GetText(),
+							form.GetFormItem(2).(*tview.InputField).GetText(),
+							form.GetFormItem(1).(*tview.InputField).GetText(),
+							ctx.Value(NetSurf.CtxKeyLoggerChannel).(chan string),
+						)
+						if ok {
+							ui.DrawView(ctx, "networks", view)
+						}
 					}()
 				},
 			},
@@ -67,6 +63,12 @@ func connect(ctx context.Context) {
 			ui.DrawModal(ctx, fmt.Sprintf("connect to %s", ssid), view, form)
 		}
 	}
+
+	go ui.DrawView(ctx, "networks", view)
+	ctx.Value(NetSurf.CtxKeyLoggerChannel).(chan string) <- fmt.Sprintf(
+		"scanning Wi-Fi networks every %ds",
+		NetSurf.TickScanOperation,
+	)
 
 	networks := make(chan []map[string]string, 1)
 	schedule.NetworkScan(ctx, networks)
