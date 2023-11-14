@@ -28,31 +28,29 @@ func connect(ctx context.Context) {
 		form := ui.ContentForm(ui.ContentFormData{
 			Fields: []ui.ContentFormField{
 				{
-					Type:  "input",
+					Type:  ui.FieldInput,
 					Label: "ssid",
 					Value: ssid,
 				},
 				{
-					Type:  "input",
+					Type:  ui.FieldInput,
 					Label: "country",
 					Value: "US",
 				},
 				{
-					Type:  "password",
+					Type:  ui.FieldPassword,
 					Label: "password",
 				},
 			},
-			Buttons: []ui.ContentFormButton{
-				{
-					Action: func() {
-
-					},
-					Label: "connect",
-				},
-				{
-					Action: func() { go ui.DrawView(ctx, "networks", view) },
-					Label:  "cancel",
-				},
+		})
+		form = ui.UpdateFormButtons(form, []ui.ContentFormButton{
+			{
+				Label:  "connect",
+				Action: func() {},
+			},
+			{
+				Label:  "cancel",
+				Action: func() { go ui.DrawView(ctx, "networks", view) },
 			},
 		})
 		return func() {
