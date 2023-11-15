@@ -78,6 +78,22 @@ func (c Controller) Connect(ctx context.Context, output chan string, ssid, pass,
 	}
 }
 
+// Disconnect tries to disconnect from a network.
+func (c Controller) Disconnect(ctx context.Context, output chan string) bool {
+	resultCh := make(chan bool, 1)
+	go func() {
+		defer close(resultCh)
+
+		resultCh <- wifi.Disconn(output)
+	}()
+	select {
+	case <-ctx.Done():
+		return false
+	case result := <-resultCh:
+		return result
+	}
+}
+
 // Status gets the wifi connection status.
 func (c Controller) Status(ctx context.Context, output chan string) string {
 	resultCh := make(chan string, 1)

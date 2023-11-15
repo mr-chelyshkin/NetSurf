@@ -26,6 +26,13 @@ typedef struct wifi_info {
 int network_conn(const char* ssid, const char* password, const char* country);
 
 /**
+ * Disconnect from a WiFi network.
+ *
+ * @return A result code indicating success or failure.
+ */
+int network_disconn();
+
+/**
  * Scan for available WiFi networks.
  *
  * @param count Pointer to an integer to store the number of networks found.
@@ -66,5 +73,7 @@ int redirected_write(int fd, const void* buf, size_t count);
  * @param s Pointer to a null-terminated string containing the data to be sent.
  */
 extern void goSendToChannel(char* s);
+
+int execute_command(const char *command, char *const args[]);
 
 #endif

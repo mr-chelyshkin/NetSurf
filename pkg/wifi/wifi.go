@@ -14,12 +14,17 @@ func Conn(ssid, pass, country string, output chan string) bool {
 	return networkConnCGO(ssid, pass, country, output)
 }
 
-type ScanOpts struct {
-	SkipEmptySsid bool
-}
-
 func Scan(output chan string) []*Network {
 	return networkScanCGO(output)
+}
+
+func Disconn(output chan string) bool {
+	networkDisconnCGO(output)
+	return true
+}
+
+type ScanOpts struct {
+	SkipEmptySsid bool
 }
 
 type Network struct {

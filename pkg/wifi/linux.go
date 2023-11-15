@@ -36,6 +36,14 @@ func networkConnCGO(ssid, pass, country string, output chan string) bool {
 	return C.network_conn(C.CString(ssid), C.CString(pass), C.CString(country)) == 0
 }
 
+func networkDisconnCGO(output chan string) {
+	outputChan = output
+
+	C.redirect_output()
+	defer C.reset_output()
+	C.network_disconn()
+}
+
 func networkScanCGO(output chan string) []*Network {
 	outputChan = output
 
