@@ -21,5 +21,6 @@ func ContentModal(data ContentModalData) *tview.Modal {
 		SetDoneFunc(func(_ int, buttonLabel string) { data.Action[buttonLabel]() }).
 		SetButtonBackgroundColor(tcell.ColorDodgerBlue).
 		SetBackgroundColor(tcell.ColorBlack).
+		SetText(data.Text).
 		AddButtons(keys)
 }

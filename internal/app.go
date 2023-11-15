@@ -45,7 +45,7 @@ func Run() {
 				Data:   []string{"connect", "scan and connect to Wi-Fi network"},
 			},
 			{
-				Action: func() {},
+				Action: func() { go disconnect(ctx) },
 				Data:   []string{"disconnect", "interrupt current Wi-Fi connection"},
 			},
 		},
