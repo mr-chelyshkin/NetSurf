@@ -3,6 +3,7 @@ package internal
 import (
 	"context"
 	"fmt"
+
 	"github.com/mr-chelyshkin/NetSurf"
 	"github.com/mr-chelyshkin/NetSurf/internal/controller"
 
@@ -37,7 +38,13 @@ func disconnect(ctx context.Context) {
 					if !ok {
 						return
 					}
-					wifi.Disconnect(ctx, ctx.Value(NetSurf.CtxKeyLoggerChannel).(chan string))
+					go func() {
+						ok := wifi.Disconnect(ctx, ctx.Value(NetSurf.CtxKeyLoggerChannel).(chan string))
+						if ok {
+							cancel()
+							Run()
+						}
+					}()
 				}
 			}
 			ui.DrawView(ctx, "network_modal", ui.ContentModal(data))
