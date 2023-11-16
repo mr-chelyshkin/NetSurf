@@ -33,7 +33,7 @@ func disconnect(ctx context.Context) {
 			if network != "" {
 				data.Text = fmt.Sprintf("disconnect from '%s'?", network)
 				data.Action["disconnect"] = func() {
-					wifi, ok := ctx.Value(NetSurf.CtxKeyWifiController).(controller.Controller)
+					wifi, ok := ctx.Value(NetSurf.CtxKeyWifiController).(*controller.Controller)
 					if !ok {
 						return
 					}

@@ -15,7 +15,7 @@ func NetworkScan(ctx context.Context, c chan<- []map[string]string) {
 	if !ok {
 		return
 	}
-	wifi, ok := ctx.Value(NetSurf.CtxKeyWifiController).(controller.Controller)
+	wifi, ok := ctx.Value(NetSurf.CtxKeyWifiController).(*controller.Controller)
 	if !ok {
 		output <- "missed controller"
 		return
@@ -51,7 +51,7 @@ func NetworkScan(ctx context.Context, c chan<- []map[string]string) {
 // NetworkStatus schedule worker.
 // Check current Wi-Fi connection (by controller.Controller) and return ssid to income chanel.
 func NetworkStatus(ctx context.Context, c chan<- string) {
-	wifi, ok := ctx.Value(NetSurf.CtxKeyWifiController).(controller.Controller)
+	wifi, ok := ctx.Value(NetSurf.CtxKeyWifiController).(*controller.Controller)
 	if !ok {
 		c <- "missed controller"
 		return
