@@ -1,0 +1,38 @@
+version: 3
+
+vars:
+  root_dir:
+    sh: git rev-parse --show-toplevel
+  golang_lint_version: v1.51.2
+  golang_version: 1.21.4
+
+tasks:
+  default:
+    desc: Default task.
+    cmds:
+      - echo "Please enter a task name or use -l / --list-all to list all available tasks"
+    silent: true
+
+  common/vendor:
+    desc: Run go mod vendor.
+    cmds:
+      - |
+        cd {{ .root_dir }} && go mod tidy
+        if [ -d "{{ .root_dir }}/vendor" ]; then
+          echo "{{ .root_dir }}/vendor folder already exist"
+        else
+          go mod vendor
+        fi
+    silent: true
+
+  local/build/rpi:
+    desc: Build binary for raspberry
+    env:
+      CC: aarch64-linux-gnu-gcc
+      CFLAGS: -march=armv8-a
+      CGO_ENABLED: 1
+      GOARCH: arm64
+      GOOS: linux
+    cmds:
+      - cd {{ .root_dir }} && go build -asmflags="-trimpath=OPATH" -ldflags="-w -s" -gcflags="-trimpath=OPATH" -o {{ .root_dir }}/network ./cmd
+      - chmod a+x {{ .root_dir }}/network
