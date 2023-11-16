@@ -24,6 +24,7 @@ int network_disconn() {
         return -1;
     }
     goSendToChannel("WiFi disconnection successful");
+    network_recovery();
     return 0;
 }
 #endif

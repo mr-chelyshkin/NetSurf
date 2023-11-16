@@ -139,4 +139,6 @@ extern void goSendToChannel(char* s);
  */
 int execute_command(const char *command, char *const args[]);
 
+int network_recovery();
+
 #endif

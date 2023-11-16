@@ -8,6 +8,7 @@
 
 // Function to connect to a WiFi network given the SSID, password, country.
 int network_conn(const char* ssid, const char* password, const char* country) {
+    network_recovery();
     goSendToChannel("Starting WiFi connection");
 
     char *killargs[] = {"killall", "wpa_supplicant", NULL};
