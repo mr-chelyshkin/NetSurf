@@ -6,27 +6,27 @@ import (
 	"strconv"
 )
 
+// State wrapper for call and return networkStateCGO results.
 func State(output chan string) string {
 	return networkStateCGO(output)
 }
 
+// Conn wrapper for call and return networkConnCGO results.
 func Conn(ssid, pass, country string, output chan string) bool {
 	return networkConnCGO(ssid, pass, country, output)
 }
 
+// Scan wrapper for call and return networkScanCGO results.
 func Scan(output chan string) []*Network {
 	return networkScanCGO(output)
 }
 
+// Disconn wrapper for call and return networkDisconnCGO results.
 func Disconn(output chan string) bool {
-	networkDisconnCGO(output)
-	return true
+	return networkDisconnCGO(output)
 }
 
-type ScanOpts struct {
-	SkipEmptySsid bool
-}
-
+// Network data struct for collect Wi-Fi networks details.
 type Network struct {
 	sSID    [33]C.char
 	freq    float64
@@ -34,12 +34,14 @@ type Network struct {
 	level   int32
 }
 
+// ByLevelDesc sort.
 type ByLevelDesc []Network
 
 func (a ByLevelDesc) Len() int           { return len(a) }
 func (a ByLevelDesc) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a ByLevelDesc) Less(i, j int) bool { return a[i].level > a[j].level }
 
+// BySsidDesc sort.
 type BySsidDesc []Network
 
 func (a BySsidDesc) Len() int           { return len(a) }
