@@ -18,9 +18,9 @@ func mainFrame(ctx context.Context, p tview.Primitive, title string) *tview.Fram
 		AddItem(writer(ctx), 0, 1, false)
 	frame := tview.NewFlex().
 		SetDirection(tview.FlexRow).
-		AddItem(header, 6, 1, false).
-		AddItem(content, 0, 3, true).
-		AddItem(footer, 16, 2, false)
+		AddItem(header, 5, 1, false).
+		AddItem(content, 0, 5, true).
+		AddItem(footer, 4, 1, false)
 	f := tview.NewFrame(frame)
 	f.SetBackgroundColor(tcell.ColorBlack)
 	return f
