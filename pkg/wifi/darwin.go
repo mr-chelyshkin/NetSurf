@@ -14,6 +14,6 @@ func networkScanCGO(output chan string) []*Network {
 	return nil
 }
 
-func networkDisconnCGO(output chan string) []*Network {
-	return nil
+func networkDisconnCGO(output chan string) bool {
+	return false
 }
