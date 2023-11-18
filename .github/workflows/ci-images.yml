@@ -1,4 +1,4 @@
-name: Docker Build and Push
+name: Build CI/CD images
 
 on:
   workflow_dispatch:
