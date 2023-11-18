@@ -10,4 +10,5 @@ RUN apk update && apk add --no-cache build-base gcc gcc-x86_64-linux-gnu wireles
     && sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /bin
 WORKDIR /go/src
 
+
 FROM builder-${TARGETARCH}
