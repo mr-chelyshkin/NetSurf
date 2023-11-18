@@ -4,8 +4,14 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - 'images/Dockerfile-ci'
+      - '.infra/images/Dockerfile-ci'
       - 'go.mod'
+
+env:
+  DOCKERFILE_PATH: .infra/images/Dockerfile-ci
+  IMAGE_NAME:      chelyshkin/netsurf-ci
+  IMAGE_TAG_ARM:   latest-arm64
+  IMAGE_TAG_AMD:   latest-amd64
 
 jobs:
   build-and-push:
@@ -32,9 +38,9 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: ./images/Dockerfile-ci
+          file: ${{ env.DOCKERFILE_PATH }}
           push: true
-          tags: chelyshkin/netsurf-ci:latest-amd64
+          tags: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG_AMD }}
           platforms: linux/amd64
           build-args: GO_VERSION=${{ env.GO_VERSION }}
           target: builder-amd64
@@ -43,9 +49,9 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: ./images/Dockerfile-ci
+          file: ${{ env.DOCKERFILE_PATH }}
           push: true
-          tags: chelyshkin/netsurf-ci:latest-arm64
+          tags: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG_ARM }}
           platforms: linux/arm64
           build-args: GO_VERSION=${{ env.GO_VERSION }}
           target: builder-arm64
