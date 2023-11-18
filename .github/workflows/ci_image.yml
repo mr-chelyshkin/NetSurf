@@ -31,6 +31,6 @@ jobs:
           context: .
           file: ./images/Dockerfile-ci
           push: true
-          tags: mr-chelyshkin/netsurf-ci:0.0.1
+          tags: chelyshkin/netsurf-ci:0.0.1
           platforms: linux/amd64,linux/arm64
           build-args: GO_VERSION=${{ env.GO_VERSION }}
