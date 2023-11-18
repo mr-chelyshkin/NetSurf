@@ -6,13 +6,8 @@ RUN apk update && apk add --no-cache build-base gcc gcc-aarch64-none-elf wireles
 WORKDIR /go/src
 
 FROM golang:${GO_VERSION}-alpine as builder-amd64
-RUN apk update && apk add --no-cache build-base gcc gcc-x86_64-linux-gnu wireless-tools-dev linux-headers curl git \
+RUN apk update && apk add --no-cache curl git \
     && sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /bin
 WORKDIR /go/src
-
-
-
-
-
 
 FROM builder-${TARGETARCH}
