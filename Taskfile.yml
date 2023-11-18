@@ -28,7 +28,6 @@ tasks:
   local/build/rpi:
     desc: Build binary for raspberry
     env:
-      CC: aarch64-linux-gnu-gcc
       CFLAGS: -march=armv8-a
       CGO_ENABLED: 1
       GOARCH: arm64
