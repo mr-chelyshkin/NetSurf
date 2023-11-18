@@ -3,6 +3,9 @@ name: Docker Build and Push
 on:
   push:
     branches: [ ci-cd ]
+#    paths:
+#      - './images/Dockerfile-ci'
+#      - 'go.mod'
 
 jobs:
   build-and-push:
@@ -31,6 +34,6 @@ jobs:
           context: .
           file: ./images/Dockerfile-ci
           push: true
-          tags: chelyshkin/netsurf-ci:0.0.1
+          tags: chelyshkin/netsurf-ci:latest
           platforms: linux/amd64,linux/arm64
           build-args: GO_VERSION=${{ env.GO_VERSION }}
