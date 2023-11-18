@@ -2,10 +2,9 @@ name: Docker Build and Push
 
 on:
   push:
-    branches: [ ci-cd ]
-#    paths:
-#      - './images/Dockerfile-ci'
-#      - 'go.mod'
+    paths:
+      - './images/Dockerfile-ci'
+      - 'go.mod'
 
 jobs:
   build-and-push:
