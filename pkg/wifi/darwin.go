@@ -13,3 +13,7 @@ func networkConnCGO(ssid, pass, country string, output chan string) bool {
 func networkScanCGO(output chan string) []*Network {
 	return nil
 }
+
+func networkDisconnCGO(output chan string) bool {
+	return false
+}
