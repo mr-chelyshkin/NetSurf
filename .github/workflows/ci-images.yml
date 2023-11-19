@@ -4,20 +4,55 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - 'images/Dockerfile-ci'
-      - 'go.mod'
+      - '.infra/images/*'
+
+env:
+  IMAGE_NAME: chelyshkin/netsurf-ci
 
 jobs:
-  build-and-push:
+  prepare-matrix:
     runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Extract Go version from go.mod
-        id: go-version
+      - name: Find modified files in the latest commit
+        id: find-files
         run: |
-          echo "GO_VERSION=$(sed -n -e 's/^go //p' go.mod)" >> $GITHUB_ENV
+          echo "Listing changes in the latest commit..."
+          files=$(git show --name-only --pretty=format: | grep '^.infra/images/' || echo "")
+          echo "Modified files: $files"
+          echo "::set-output name=modified_files::$files"
+
+      - name: Create matrix
+        id: set-matrix
+        run: |
+          files="${{ steps.find-files.outputs.modified_files }}"
+          matrix="["
+          for file in $files; do
+            if [ -n "$file" ]; then
+              filename=$(basename "$file" | sed 's/\./-/g')
+              matrix="$matrix{\"dockerfile\":\"$file\", \"tag\":\"$filename\"},"
+            fi
+          done
+          matrix="${matrix%,}]"
+          echo "Generated matrix: $matrix"
+          echo "::set-output name=matrix::$matrix"
+
+  build-and-push:
+    needs: prepare-matrix
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{fromJson(needs.prepare-matrix.outputs.matrix)}}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
@@ -28,25 +63,9 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push for amd64
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          file: ./images/Dockerfile-ci
-          push: true
-          tags: chelyshkin/netsurf-ci:latest-amd64
-          platforms: linux/amd64
-          build-args: GO_VERSION=${{ env.GO_VERSION }}
-          target: builder-amd64
-
-      - name: Build and push for arm64
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          file: ./images/Dockerfile-ci
-          push: true
-          tags: chelyshkin/netsurf-ci:latest-arm64
-          platforms: linux/arm64
-          build-args: GO_VERSION=${{ env.GO_VERSION }}
-          target: builder-arm64
-
+      - name: Build and push
+        run: |
+          docker buildx build --file ${{ matrix.dockerfile }} \
+            --tag ${{ env.IMAGE_NAME }}:${{ matrix.tag }} \
+            --platform linux/amd64,linux/arm64 \
+            --push .

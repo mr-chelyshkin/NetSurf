@@ -25,13 +25,21 @@ tasks:
         fi
     silent: true
 
-  local/build/rpi:
-    desc: Build binary for raspberry
+  build/base:
+    desc: Build binary base command.
+    deps:
+      - common/vendor
     env:
-      CFLAGS: -march=armv8-a
-      CGO_ENABLED: 1
-      GOARCH: arm64
-      GOOS: linux
+      BINARY_NAME: netsurf
     cmds:
-      - cd {{ .root_dir }} && go build -asmflags="-trimpath=OPATH" -ldflags="-w -s" -gcflags="-trimpath=OPATH" -o {{ .root_dir }}/network ./cmd
-      - chmod a+x {{ .root_dir }}/network
+      - |
+        cd {{ .root_dir }} && mkdir -p {{ .root_dir }}/bin && \
+        go build -ldflags="-w -s" -o {{ .root_dir }}/bin/${BINARY_NAME} ./cmd
+
+  build/local:
+    desc: Build app on local.
+    env:
+      CGO_ENABLED: 1
+    cmds:
+      - task: build/base
+        vars: { BINARY_NAME: "netsurf_dev" }

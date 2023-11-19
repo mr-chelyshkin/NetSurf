@@ -1,0 +1,6 @@
+# The container serves the purpose of compiling the NetSurf for Debian 11 - bullseye.
+# Use glibc version 2.31-13+deb11u7 (ldd --version) with libiw-dev.
+
+FROM debian:11
+RUN apt-get update && apt-get install -y git curl gcc-aarch64-linux-gnu g++-aarch64-linux-gnu libiw-dev
+WORKDIR /sources
