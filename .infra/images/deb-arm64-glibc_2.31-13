@@ -2,7 +2,6 @@ FROM debian:11
 ARG GO_VERSION
 ARG TARGETARCH
 
-
 ENV GOPATH /go
 ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
 
