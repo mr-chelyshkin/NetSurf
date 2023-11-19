@@ -39,15 +39,14 @@ jobs:
             fi
           done
           printf '%s\n' "${matrix[@]}" | jq -s '.' > matrix.json
-          cat matrix.json
-          echo "::set-output name=matrix::$(<matrix.json)"
+          echo "MATRIX=$(<matrix.json)" >> $GITHUB_ENV
 
   build-and-push:
     needs: prepare-matrix
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix: ${{fromJson(needs.prepare-matrix.outputs.matrix)}}
+      matrix: ${{fromJson(env.MATRIX)}}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
