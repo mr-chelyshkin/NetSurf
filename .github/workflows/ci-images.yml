@@ -39,8 +39,6 @@ jobs:
             fi
           done
           matrix="${matrix%,}]"
-          echo "::set-output name=matrix::$matrix"
-          matrix="${matrix%,}]"
           echo "Generated matrix: $matrix"
           echo "::set-output name=matrix::$matrix"
 
