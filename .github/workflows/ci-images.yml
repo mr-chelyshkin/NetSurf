@@ -26,27 +26,29 @@ jobs:
           echo "Modified files: $files"
           echo "::set-output name=modified_files::$files"
 
-      - name: Create matrix file
+      - name: Create matrix
         id: set-matrix
         run: |
           files="${{ steps.find-files.outputs.modified_files }}"
-          matrix=()
+          matrix="["
           for file in $files; do
             if [ -n "$file" ]; then
               filename=$(basename "$file" | sed 's/\./-/g')
               arch="$(echo $file | grep -oE '(amd64|arm64)' || echo 'amd64')"
-              matrix+=("{\"dockerfile\":\"$file\", \"tag\":\"$filename\", \"arch\":\"$arch\"}")
+              matrix="$matrix{\"dockerfile\":\"$file\", \"tag\":\"$filename\", \"arch\":\"$arch\"},"
             fi
           done
-          printf '%s\n' "${matrix[@]}" | jq -s '.' > matrix.json
-          echo "MATRIX=$(<matrix.json)" >> $GITHUB_ENV
+          matrix="${matrix%,}]"
+          echo "MATRIX_JSON<<EOF" >> $GITHUB_ENV
+          echo "$matrix" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
   build-and-push:
     needs: prepare-matrix
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix: ${{fromJson(env.MATRIX)}}
+      matrix: ${{fromJson(env.MATRIX_JSON)}}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
