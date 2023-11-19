@@ -28,12 +28,12 @@ jobs:
           echo "Modified files: $files"
           echo "::set-output name=modified_files::$files"
 
-      - name: Find modified files in .infra/images
-        id: find-files
-        run: |
-          files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^.infra/images/' || echo "")
-          echo "Modified files: $files"
-          echo "::set-output name=modified_files::$files"
+#      - name: Find modified files in .infra/images
+#        id: find-files
+#        run: |
+#          files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^.infra/images/' || echo "")
+#          echo "Modified files: $files"
+#          echo "::set-output name=modified_files::$files"
 
       - name: Create matrix
         id: set-matrix
