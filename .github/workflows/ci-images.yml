@@ -34,8 +34,7 @@ jobs:
           for file in $files; do
             if [ -n "$file" ]; then
               filename=$(basename "$file" | sed 's/\./-/g')
-              arch="$(echo $file | grep -oE '(amd64|arm64)' || echo 'amd64')"
-              matrix="$matrix{\"dockerfile\":\"$file\", \"tag\":\"$filename\", \"arch\":\"$arch\"},"
+              matrix="$matrix{\"dockerfile\":\"$file\", \"tag\":\"$filename\"},"
             fi
           done
           matrix="${matrix%,}]"
@@ -55,10 +54,6 @@ jobs:
         with:
           fetch-depth: 2
 
-      - name: Extract Go version from go.mod
-        run: |
-          echo "GO_VERSION=$(sed -n -e 's/^go //p' go.mod)" >> $GITHUB_ENV
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
@@ -68,7 +63,14 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Extract Go version from go.mod
+        run: |
+          echo "GO_VERSION=$(sed -n -e 's/^go //p' go.mod)" >> $GITHUB_ENV
+
       - name: Build and push
         run: |
-          docker build --file ${{ matrix.dockerfile }} --tag ${{ env.IMAGE_NAME }}:${{ matrix.tag }} --build-arg GO_VERSION=${{ env.GO_VERSION }} --build-arg TARGETARCH=${{ matrix.arch }} --platform linux/${{ matrix.arch }} .
-          docker push ${{ env.IMAGE_NAME }}:${{ matrix.tag }}
+          docker buildx build --file ${{ matrix.dockerfile }} \
+            --tag ${{ env.IMAGE_NAME }}:${{ matrix.tag }} \
+            --build-arg GO_VERSION=${{ env.GO_VERSION }} \
+            --platform linux/amd64,linux/arm64 \
+            --push .
