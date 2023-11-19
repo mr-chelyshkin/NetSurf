@@ -70,5 +70,10 @@ jobs:
 
       - name: Build and push
         run: |
-          docker build --file ${{ matrix.dockerfile }} --tag ${{ env.IMAGE_NAME }}:${{ matrix.tag }} --build-arg GO_VERSION=${{ env.GO_VERSION }} --platform linux/${{ matrix.arch }} .
+          docker build \
+            --file ${{ matrix.dockerfile }}               \
+            --tag ${{ env.IMAGE_NAME }}:${{ matrix.tag }} \
+            --build-arg GO_VERSION=${{ env.GO_VERSION }}  \
+            --build-arg TARGETARCH=${{ matrix.arch }}     \ 
+            --platform linux/${{ matrix.arch }} .
           docker push ${{ env.IMAGE_NAME }}:${{ matrix.tag }}
