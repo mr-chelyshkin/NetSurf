@@ -4,24 +4,52 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - '.infra/images/Dockerfile-ci'
-      - 'go.mod'
+      - '.infra/images/*'
 
 env:
-  DOCKERFILE_PATH: .infra/images/Dockerfile-ci
-  IMAGE_NAME:      chelyshkin/netsurf-ci
-  IMAGE_TAG_ARM:   latest-arm64
-  IMAGE_TAG_AMD:   latest-amd64
+  IMAGE_NAME: chelyshkin/netsurf-ci
 
 jobs:
-  build-and-push:
+  prepare-matrix:
     runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Find modified Dockerfiles
+        id: find-files
+        run: |
+          files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^.infra/images.*Dockerfile' || echo "")
+          echo "Modified files: $files"
+          echo "::set-output name=modified_files::$files"
+
+      - name: Create matrix
+        id: set-matrix
+        run: |
+          files="${{ steps.find-files.outputs.modified_files }}"
+          matrix="["
+          for file in $files; do
+            filename=$(basename "$file" | sed 's/Dockerfile-//;s/Dockerfile//;s/\./-/g') # Измените это согласно вашим правилам именования
+            arch="$(echo $file | grep -oE '(amd64|arm64)')" # Extract architecture from filename
+            matrix="$matrix{\"dockerfile\":\"$file\", \"tag\":\"$filename\"},"
+          done
+          matrix="${matrix%,}]"
+          echo "Matrix: $matrix"
+          echo "::set-output name=matrix::$matrix"
+
+  build-and-push:
+    needs: prepare-matrix
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{fromJson(needs.prepare-matrix.outputs.matrix)}}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
       - name: Extract Go version from go.mod
-        id: go-version
         run: |
           echo "GO_VERSION=$(sed -n -e 's/^go //p' go.mod)" >> $GITHUB_ENV
 
@@ -34,25 +62,13 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push for amd64
+      - name: Build and push
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: ${{ env.DOCKERFILE_PATH }}
+          file: ${{ matrix.dockerfile }}
           push: true
-          tags: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG_AMD }}
-          platforms: linux/amd64
+          tags: ${{ env.IMAGE_NAME }}:${{ matrix.tag }}
+          platforms: linux/${{ matrix.arch }}
           build-args: GO_VERSION=${{ env.GO_VERSION }}
-          target: builder-amd64
-
-      - name: Build and push for arm64
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          file: ${{ env.DOCKERFILE_PATH }}
-          push: true
-          tags: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG_ARM }}
-          platforms: linux/arm64
-          build-args: GO_VERSION=${{ env.GO_VERSION }}
-          target: builder-arm64
-
+          target: builder-${{ matrix.arch }}

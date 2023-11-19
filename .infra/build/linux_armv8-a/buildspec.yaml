@@ -8,6 +8,7 @@ env:
     GOOS: linux
     GOARCH: arm64
     CFLAGS: -march=armv8-a
+    CC: aarch64-linux-gnu-gcc
 
 phases:
   build:
