@@ -1,11 +1,11 @@
 ARG GO_VERSION
 
 FROM golang:${GO_VERSION}-alpine as builder-arm64
-RUN apk update && apk add --no-cache build-base gcc gcc-aarch64-none-elf wireless-tools-dev linux-headers curl git
+RUN apk update && apk add --no-cache build-base gcc gcc-aarch64-none-elf wireless-tools-dev linux-headers curl git bash
 WORKDIR /go/src
 
 FROM golang:${GO_VERSION}-alpine as builder-amd64
-RUN apk update && apk add --no-cache curl git
+RUN apk update && apk add --no-cache curl git bash
 WORKDIR /go/src
 
 FROM builder-${TARGETARCH}
