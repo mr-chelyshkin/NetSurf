@@ -1,6 +1,7 @@
 version: 0.2
 
 env:
+  shell: sh
   variables:
     BINARY_NAME: netsurf-linux_armv8-a
     CGO_ENABLED: 1
@@ -11,7 +12,6 @@ env:
 phases:
   build:
     commands:
-      - #!/bin/sh
       - task build/base
 
 artifacts:
