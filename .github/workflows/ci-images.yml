@@ -68,13 +68,6 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push
-        if: ${{ fromJson(needs.prepare-matrix.outputs.matrix).length > 0 }}
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          file: ${{ matrix.dockerfile }}
-          push: true
-          tags: ${{ env.IMAGE_NAME }}:${{ matrix.tag }}
-          platforms: linux/${{ matrix.arch }}
-          build-args: GO_VERSION=${{ env.GO_VERSION }}
-          target: builder-${{ matrix.arch }}
+        run: |
+          docker build --file ${{ matrix.dockerfile }} --tag ${{ env.IMAGE_NAME }}:${{ matrix.tag }} --build-arg GO_VERSION=${{ env.GO_VERSION }} --platform linux/${{ matrix.arch }} .
+          docker push ${{ env.IMAGE_NAME }}:${{ matrix.tag }}
