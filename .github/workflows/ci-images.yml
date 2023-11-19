@@ -18,11 +18,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Find modified files in .infra/images
+      - name: Find modified files in the latest commit
         id: find-files
         run: |
           echo "Listing changes in the latest commit..."
-          files=$(git diff --name-only HEAD^ HEAD | grep '^.infra/images/' || echo "")
+          files=$(git show --name-only --pretty=format: | grep '^.infra/images/' || echo "")
           echo "Modified files: $files"
           echo "::set-output name=modified_files::$files"
 
