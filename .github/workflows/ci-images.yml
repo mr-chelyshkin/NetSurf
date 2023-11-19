@@ -26,21 +26,22 @@ jobs:
           echo "Modified files: $files"
           echo "::set-output name=modified_files::$files"
 
-      - name: Create matrix
+      - name: Create matrix file
         id: set-matrix
         run: |
           files="${{ steps.find-files.outputs.modified_files }}"
-          matrix="["
+          echo "[]" > matrix.json # Создаём пустой JSON массив
           for file in $files; do
             if [ -n "$file" ]; then
-              filename=$(basename "$file" | sed 's/\./-/g') # Преобразование имени файла в тег
-              arch="$(echo $file | grep -oE '(amd64|arm64)' || echo 'amd64')" # По умолчанию используем amd64
-              matrix="$matrix{\"dockerfile\":\"$file\", \"tag\":\"$filename\", \"arch\":\"$arch\"},"
+              filename=$(basename "$file" | sed 's/\./-/g')
+              arch="$(echo $file | grep -oE '(amd64|arm64)' || echo 'amd64')"
+              echo "{\"dockerfile\":\"$file\", \"tag\":\"$filename\", \"arch\":\"$arch\"}," >> matrix.json
             fi
           done
-          matrix="${matrix%,}]"
-          echo "Matrix: $matrix"
-          echo "::set-output name=matrix::$matrix"
+          jq -s 'add' matrix.json > temp.json && mv temp.json matrix.json
+          cat matrix.json
+          echo "::set-output name=matrix::$(<matrix.json)"
+  
 
   build-and-push:
     needs: prepare-matrix
