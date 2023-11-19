@@ -40,6 +40,9 @@ jobs:
           done
           matrix="${matrix%,}]"
           echo "::set-output name=matrix::$matrix"
+          matrix="${matrix%,}]"
+          echo "Generated matrix: $matrix"
+          echo "::set-output name=matrix::$matrix"
 
   build-and-push:
     needs: prepare-matrix
