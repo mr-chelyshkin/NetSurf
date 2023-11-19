@@ -1,5 +1,7 @@
 version: 0.2
 
+# Building the project for Raspberry Pi.
+
 env:
   shell: bash
   variables:
