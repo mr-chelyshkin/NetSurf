@@ -11,6 +11,7 @@ env:
 phases:
   build:
     commands:
+      - #!/bin/sh
       - task build/base
 
 artifacts:
