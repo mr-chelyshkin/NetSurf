@@ -39,13 +39,8 @@ jobs:
             fi
           done
           matrix="${matrix%,}]"
-          if [ "$matrix" == "[]" ]; then
-            echo "No files changed in .infra/images/"
-            echo "::set-output name=matrix::[]"
-          else
-            echo "Matrix: $matrix"
-            echo "::set-output name=matrix::$matrix"
-          fi
+          echo "Matrix: $matrix"
+          echo "::set-output name=matrix::$matrix"
 
   build-and-push:
     needs: prepare-matrix
