@@ -39,16 +39,14 @@ jobs:
             fi
           done
           matrix="${matrix%,}]"
-          echo "MATRIX_JSON<<EOF" >> $GITHUB_ENV
-          echo "$matrix" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+          echo "::set-output name=matrix::$matrix"
 
   build-and-push:
     needs: prepare-matrix
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix: ${{fromJson(env.MATRIX_JSON)}}
+      matrix: ${{fromJson(needs.prepare-matrix.outputs.matrix)}}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
